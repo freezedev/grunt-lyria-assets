@@ -1,8 +1,6 @@
 /*
  * grunt-lyria-assets
  * https://github.com/freezedev/grunt-lyria-assets
- *
- * This is public domain, see LICENSE for more information
  */
 
 'use strict';
@@ -20,6 +18,17 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc',
       },
+    },
+    coffee: {
+      tasks: {
+        files: [{
+          expand: true,
+          src: ['**/*.coffee'],
+          ext: '.js',
+          cwd: 'src',
+          dest: 'tasks/'
+        }]
+      }
     },
 
     // Before generating any new files, remove any previously-created files.
@@ -57,14 +66,11 @@ module.exports = function(grunt) {
   // Actually load this plugin's task(s).
   grunt.loadTasks('tasks');
 
-  // These plugins provide necessary tasks.
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-nodeunit');
+  require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'lyria_assets', 'nodeunit']);
+  grunt.registerTask('test', ['clean', 'coffee', 'lyria_assets', 'nodeunit']);
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);
