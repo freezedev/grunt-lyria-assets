@@ -1,6 +1,6 @@
 # grunt-lyria-assets
 
-> Grunt task for building Lyria assets
+> Preparation of Lyria assets
 
 ## Getting Started
 This plugin requires Grunt `~0.4.1`
