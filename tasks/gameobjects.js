@@ -1,4 +1,4 @@
-(function() {
-  module.exports = function(grunt) {};
+module.exports = function(grunt) {
+  
+};
 
-}).call(this);
