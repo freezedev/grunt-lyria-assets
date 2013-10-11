@@ -1,14 +1,58 @@
-(function() {
-  module.exports = function(grunt) {
-    var SourceMapConsumer, SourceMapGenerator, SourceNode, defaultSceneTemplate, sceneContent, sceneSource, _ref;
-    _ref = require('source-map'), SourceNode = _ref.SourceNode, SourceMapGenerator = _ref.SourceMapGenerator, SourceMapConsumer = _ref.SourceMapConsumer;
-    defaultSceneTemplate = "{{#if gameobject}}\n  {{#each gameobject}}\n    <div id=\"{{name}}\">{{{content}}}</div>\n  {{/each}}\n{{/if}}\n\n{{#if prefab}}\n  {{#each prefab}}\n    <div id=\"{{name}}\">{{{content}}}</div>\n  {{/each}}\n{{/if}}\n\n{{#if guilayer}}\n  {{{guilayer.content}}}\n{{/if}}";
-    sceneSource = "define('%= namespace %>/scenelist', ['lyria/scene', 'lyria/template/engine'], function(Scene, TemplateEngine) {\n  var sceneList = {};\n  <%= scenes  %>\n  return sceneList;\n});";
-    sceneContent = "sceneList['<%= name %>'] = new Scene('<%= name %>', <%= deps %>, function() {\n  this.localization = <%= localization %>;\n  this.template = this.template || {};\n  this.template.source = <%= templateSource %>;\n  this.template.partials = <%= templatePartials %>;\n  \n  var sceneFunc = <%= sceneContent %>;\n  if (typeof sceneFunc === 'function') {\n    sceneFunc = sceneFunc.apply(this, arguments);\n  }\n  \n  return sceneFunc;\n});";
-    return grunt.registerMultiTask('lyriaScene', 'Concatenates all files into one', function() {
-      var done;
-      return done = this.async();
-    });
-  };
+var handlebars = require('handlebars');
 
-}).call(this);
+module.exports = function(grunt) {
+
+  grunt.registerMultiTask('lyriaScene', 'Concatenates all files into one', function() {
+    var options = this.options({
+      name: 'scenelist',
+      entryFile: 'scene.js',
+      markupFile: 'scene.html',
+      localizationFile: 'localization.json',
+      partials: 'partials'
+    });
+
+    var files = this.files;
+
+    for (var i = 0, j = files.length; i < j; i++) {
+      (function(file) {
+        var destFile = file.dest;
+
+        var scenes = [];
+
+        for (var k = 0, l = file.src.length; k < l; k++) {
+          (function(fileSrc) {
+            var sceneName = fileSrc.split('/').pop();
+
+            var sceneLoc = JSON.stringify(grunt.file.readJSON([fileSrc, options.localizationFile].join('/')));
+            var sceneJavaScript = grunt.file.read([fileSrc, options.entryFile].join('/'));
+            var sceneMarkup = handlebars.precompile(grunt.file.read([fileSrc, options.markupFile].join('/')));
+
+            scenes.push({
+              name: sceneName,
+              deps: '[]',
+              template: {
+                source: sceneMarkup,
+                partials: '{}'
+              },
+              localization: sceneLoc,
+              content: sceneJavaScript
+            });
+          })(file.src[k]);
+        }
+
+        var sceneContent = grunt.template.process(grunt.file.read('./templates/js/scene.js'), {
+          data: {
+            name: options.name,
+            namespace: options.namespace,
+            scenes: scenes
+          }
+        });
+        
+        
+        grunt.file.write(destFile, sceneContent);
+
+      })(files[i]);
+    }
+  });
+};
+
