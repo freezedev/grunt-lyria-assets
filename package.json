@@ -37,10 +37,10 @@
   },
   "dependencies": {
     "source-map": "~0.1.0",
-    "q": "~0.9.0",
     "matchdep": "~0.1.2",
-    "mime": "*",
-    "handlebars": "*"
+    "mime": "~1.2.11",
+    "handlebars": "~1.0.0",
+    "js-beautify": "~1.4.0"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"
