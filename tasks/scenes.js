@@ -110,7 +110,7 @@ module.exports = function(grunt) {
           })(file.src[k]);
         }
 
-        var sceneContent = grunt.template.process(grunt.file.read('./templates/js/scene.js'), {
+        var sceneContent = grunt.template.process(grunt.file.read(__dirname + '/../templates/js/scene.js'), {
           data: {
             name: options.name,
             namespace: options.namespace,
@@ -148,4 +148,3 @@ module.exports = function(grunt) {
     }
   });
 };
-
