@@ -35,6 +35,19 @@ module.exports = function(grunt) {
     clean: {
       tests: ['tmp'],
     },
+    
+    lyriaScene: {
+      all: {
+        options: {
+          namespace: 'test'
+        },
+        files: [{
+          dest: 'generated.js',
+          src: ['assets/scenes/*'],
+          filter: 'isDirectory'
+        }]
+      }
+    },
 
     // Configuration to be run (and then tested).
     lyria_assets: {
