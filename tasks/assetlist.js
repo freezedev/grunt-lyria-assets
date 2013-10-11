@@ -15,10 +15,10 @@ module.exports = function(grunt) {
     var assetSize = 0;
 
     for (var i = 0, j = files.length; i < j; i++) {
-      
-      var dest = file.dest;
-      
+
       (function(fileObject) {
+
+        var dest = fileObject.dest;
 
         for ( k = 0, l = fileObject.src.length; k < l; k++) {
           (function(file) {
@@ -45,20 +45,21 @@ module.exports = function(grunt) {
           })(fileObject.src[k])
         }
 
+        var value;
+        for (var key in assetObject) {
+          value = assetObject[key];
+
+          assetSize += value.totalSize;
+        }
+
+        if (assetSize) {
+          assetObject.totalSize = assetSize;
+        }
+
+        grunt.file.write(dest, 'define("' + options.namespace + '/' + options.name + '",' + JSON.stringify(assetObject) + ');');
+
       })(files[i]);
 
-      var value;
-      for (var key in assetObject) {
-        value = assetObject[key];
-
-        assetSize += value.totalSize;
-      }
-
-      if (assetSize) {
-        assetObject.totalSize = assetSize;
-      }
-
-      grunt.file.write(dest, 'define("' + options.namespace + '/' + options.name + '",' + JSON.stringify(assetObject) + ');');
     }
 
   });
