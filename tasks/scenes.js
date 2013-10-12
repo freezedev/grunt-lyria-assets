@@ -3,12 +3,14 @@ var path = require('path');
 
 var handlebars = require('handlebars');
 var sourcemap = require('source-map');
-var SourceNode = sourcemap.SourceNode;
-var SourceMapGenerator = sourcemap.SourceMapGenerator;
-var SourceMapConsumer = sourcemap.SourceMapConsumer;
+var esprima = require('esprima');
 var beautify = require('js-beautify').js_beautify;
 
 var hbsTemplates = require('../helper/hbstemplates');
+
+var SourceNode = sourcemap.SourceNode;
+var SourceMapGenerator = sourcemap.SourceMapGenerator;
+var SourceMapConsumer = sourcemap.SourceMapConsumer;
 
 module.exports = function(grunt) {
 
@@ -67,23 +69,56 @@ module.exports = function(grunt) {
             var sceneLoc = (grunt.file.exists(longFilename(options.localizationFile))) ? grunt.file.read(longFilename(options.localizationFile)) : 'null';
             var sceneJavaScript = (grunt.file.exists(entryFilename)) ? grunt.file.read(entryFilename) : '';
             var sceneMarkup = handlebars.precompile(completeTemplate);
-            
-            
+
             var scenePartialDir = (grunt.file.exists(partialsDir)) ? grunt.file.match('*.html', fs.readdirSync(partialsDir)) : [];
-            console.log(scenePartialDir);
-            
+
             var scenePartials = {};
-            
+
             for (var p = 0, q = scenePartialDir.length; p < q; p++) {
               (function(partial) {
                 var shortName = partial.split('.html')[0];
-                
+
                 if (grunt.file.exists(partialsDir, partial)) {
-                  scenePartials[shortName] = handlebars.precompile(grunt.file.read([partialsDir, partial].join('/')));                  
+                  scenePartials[shortName] = handlebars.precompile(grunt.file.read([partialsDir, partial].join('/')));
                 }
               })(scenePartialDir[p]);
             }
             
+            var metadata = {};
+
+            if (sceneJavaScript) {
+              var parsedSceneFunc = esprima.parse(sceneJavaScript, {
+                comment: true
+              });
+
+              var commentArray = parsedSceneFunc.comments;
+
+              if (commentArray != null && Array.isArray(commentArray) && commentArray.length > 0) {
+
+                for (var i = 0, j = commentArray.length; i < j; i++) {
+
+                  (function(comment) {
+                    if ((comment.type == null && comment.value == null) || comment.type !== 'Block') {
+                      return;
+                    }
+
+                    var value = comment.value;
+                    
+                    if (value.indexOf('metadata') > 0) {
+                      try {
+                        metadata = JSON.parse(value);
+                        metadata = metadata.metadata;
+                      } catch(e) {
+                        grunt.log.error('Error reading metadata. Not a valid JSON');
+                        return;
+                      }
+                    }
+
+                  })(commentArray[i]);
+                }
+              }
+            }
+
             if (sceneJavaScript && hasSourceMap) {
               var childNodeChunks = sceneJavaScript.split('\n');
               for (var n = 0, m = childNodeChunks.length - 1; n < m; n++) {
@@ -115,26 +150,24 @@ module.exports = function(grunt) {
 
             }
 
-            console.log(scenePartials);
-
             scenes.push({
-              name: sceneName,
-              deps: '{}',
+              name: metadata.name || sceneName,
+              deps: JSON.stringify(metadata.deps) || '{}',
               template: {
                 source: sceneMarkup,
                 partials: (function(obj) {
                   var content = '{';
-                  
+
                   grunt.util._.each(obj, function(value, key) {
                     content += '"' + key + '": ' + value.toString();
-                    
+
                     if (Object.keys(obj)[key] !== Object.keys(obj).length - 1) {
-                      content += ',';  
+                      content += ',';
                     }
                   });
-                  
+
                   content += '}';
-                  
+
                   return content;
                 })(scenePartials)
               },
@@ -175,11 +208,11 @@ module.exports = function(grunt) {
           });
           var newSourceMap = generator.toJSON();
           newSourceMap.file = path.basename(newSourceMap.file);
-         
+
           grunt.file.write(destFile + '.map', JSON.stringify(newSourceMap, null, (options.beautify) ? '\t' : undefined));
         }
 
       })(files[i]);
     }
   });
-};
+}; 
