@@ -1,4 +1,6 @@
+var fs = require('fs');
 var path = require('path');
+
 var handlebars = require('handlebars');
 var sourcemap = require('source-map');
 var SourceNode = sourcemap.SourceNode;
@@ -56,6 +58,7 @@ module.exports = function(grunt) {
             };
 
             var entryFilename = longFilename(options.entryFile);
+            var partialsDir = longFilename(options.partials);
 
             var sceneName = fileSrc.split('/').pop();
 
@@ -64,7 +67,23 @@ module.exports = function(grunt) {
             var sceneLoc = (grunt.file.exists(longFilename(options.localizationFile))) ? grunt.file.read(longFilename(options.localizationFile)) : 'null';
             var sceneJavaScript = (grunt.file.exists(entryFilename)) ? grunt.file.read(entryFilename) : '';
             var sceneMarkup = handlebars.precompile(completeTemplate);
-
+            
+            
+            var scenePartialDir = (grunt.file.exists(partialsDir)) ? grunt.file.match('*.html', fs.readdirSync(partialsDir)) : [];
+            console.log(scenePartialDir);
+            
+            var scenePartials = {};
+            
+            for (var p = 0, q = scenePartialDir.length; p < q; p++) {
+              (function(partial) {
+                var shortName = partial.split('.html')[0];
+                
+                if (grunt.file.exists(partialsDir, partial)) {
+                  scenePartials[shortName] = handlebars.precompile(grunt.file.read([partialsDir, partial].join('/')));                  
+                }
+              })(scenePartialDir[p]);
+            }
+            
             if (sceneJavaScript && hasSourceMap) {
               var childNodeChunks = sceneJavaScript.split('\n');
               for (var n = 0, m = childNodeChunks.length - 1; n < m; n++) {
@@ -96,12 +115,28 @@ module.exports = function(grunt) {
 
             }
 
+            console.log(scenePartials);
+
             scenes.push({
               name: sceneName,
               deps: '{}',
               template: {
                 source: sceneMarkup,
-                partials: '{}'
+                partials: (function(obj) {
+                  var content = '{';
+                  
+                  grunt.util._.each(obj, function(value, key) {
+                    content += '"' + key + '": ' + value.toString();
+                    
+                    if (Object.keys(obj)[key] !== Object.keys(obj).length - 1) {
+                      content += ',';  
+                    }
+                  });
+                  
+                  content += '}';
+                  
+                  return content;
+                })(scenePartials)
               },
               localization: sceneLoc,
               content: sceneJavaScript
