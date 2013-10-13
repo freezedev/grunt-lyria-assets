@@ -20,7 +20,9 @@ define('<%= namespace %>/<%= name %>', ['lyria/scene', 'lyria/template/engine', 
         });
         
         (function() {
+          //$ Lyria Scene begin
           <%= scene.content %>
+          //$ Lyria Scene end
         }).call(this);
         
       });
@@ -30,5 +32,7 @@ define('<%= namespace %>/<%= name %>', ['lyria/scene', 'lyria/template/engine', 
   
 });
 <% if (hasSourceMap) {%>
+/*
 <%= sourceMapDest %>
+*/
 <% } %>
