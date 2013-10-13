@@ -22,6 +22,7 @@ module.exports = function(grunt) {
       markupFile: 'scene.html',
       localizationFile: 'localization.json',
       partials: 'partials',
+      partialMatch: '*.html',
       gameObjects: true,
       prefabs: true,
       guiLayer: true,
@@ -66,17 +67,26 @@ module.exports = function(grunt) {
 
             var completeTemplate = (grunt.file.exists(longFilename(options.markupFile)) ? grunt.file.read(longFilename(options.markupFile)) : '') + defaultTemplate;
 
-            var sceneLoc = (grunt.file.exists(longFilename(options.localizationFile))) ? grunt.file.read(longFilename(options.localizationFile)) : 'null';
+            var sceneLoc = null;
+            var sceneLocContent = '';
+            
+            if (grunt.file.exists(longFilename(options.localizationFile))) {
+              sceneLoc = grunt.file.read(longFilename(options.localizationFile));
+              sceneLocContent = ((options.beautify) ? beautify(sceneLoc) : sceneLoc);
+            }
+            
             var sceneJavaScript = (grunt.file.exists(entryFilename)) ? grunt.file.read(entryFilename) : '';
             var sceneMarkup = handlebars.precompile(completeTemplate);
+            
+            var sceneTpl = ((options.beautify) ? beautify(sceneMarkup) : sceneMarkup);
 
-            var scenePartialDir = (grunt.file.exists(partialsDir)) ? grunt.file.match('*.html', fs.readdirSync(partialsDir)) : [];
+            var scenePartialDir = (grunt.file.exists(partialsDir)) ? grunt.file.match(options.partialMatch, fs.readdirSync(partialsDir)) : [];
 
             var scenePartials = {};
 
             for (var p = 0, q = scenePartialDir.length; p < q; p++) {
               (function(partial) {
-                var shortName = partial.split('.html')[0];
+                var shortName = partial.split(path.extname(partial))[0];
 
                 if (grunt.file.exists(partialsDir, partial)) {
                   scenePartials[shortName] = handlebars.precompile(grunt.file.read([partialsDir, partial].join('/')));
@@ -109,7 +119,7 @@ module.exports = function(grunt) {
                         metadata = JSON.parse(value);
                         metadata = metadata.metadata;
                       } catch(e) {
-                        grunt.log.error('Error reading metadata. Not a valid JSON');
+                        grunt.log.error('Error reading metadata: Not valid JSON');
                         return;
                       }
                     }
