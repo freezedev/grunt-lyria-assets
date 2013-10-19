@@ -181,6 +181,7 @@ module.exports = function(grunt) {
                   return content;
                 })(scenePartials)
               },
+              data: JSON.stringify(metadata.data) || '{}',
               localization: sceneLoc,
               content: sceneJavaScript
             });
