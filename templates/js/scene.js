@@ -8,24 +8,28 @@ define('<%= namespace %>/<%= name %>', ['lyria/scene', 'lyria/template/engine', 
     
     var sceneList = {};
     <% _.each(scenes, function(scene) { %>
-      sceneList['<%= scene.name %>'] = new Scene('<%= scene.name %>', <%= scene.deps %>, function() {
-        var self = this;
+      sceneList['<%= scene.name %>'] = function(param) {
+        param = param || <%= scene.data %>;
         
-        this.localization = new Localization(<%= scene.localization %>);
-        this.template = this.template || {};
-        this.template.partials = <%= scene.template.partials %>;
-        this.template.source = TemplateEngine.compile(<%= scene.template.source %>, {
-          helpers: self.template.helpers,
-          partials: self.template.partials
-        });
-        
-        (function() {
-          //$ Lyria Scene begin
-          <%= scene.content %>
-          //$ Lyria Scene end
-        }).call(this);
-        
-      });
+        return new Scene('<%= scene.name %>', <%= scene.deps %>, function() {
+          var self = this;
+          
+          this.localization = new Localization(<%= scene.localization %>);
+          this.template = this.template || {};
+          this.template.partials = <%= scene.template.partials %>;
+          this.template.source = TemplateEngine.compile(<%= scene.template.source %>, {
+            helpers: self.template.helpers,
+            partials: self.template.partials
+          });
+          
+          (function() {
+            //$ Lyria Scene begin
+            <%= scene.content %>
+            //$ Lyria Scene end
+          }).call(this);
+          
+        }, {data: param});
+      };
     <% }); %>
     return sceneList;
   };
