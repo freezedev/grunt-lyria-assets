@@ -16,6 +16,7 @@ define('<%= namespace %>/<%= name %>', ['lyria/scene', 'lyria/template/engine', 
           
           this.localization = new Localization(<%= scene.localization %>);
           this.template = this.template || {};
+          this.template.data = <%= scene.templateData %>;
           this.template.partials = <%= scene.template.partials %>;
           this.template.source = TemplateEngine.compile(<%= scene.template.source %>, {
             helpers: self.template.helpers,
