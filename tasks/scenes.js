@@ -159,6 +159,17 @@ module.exports = function(grunt) {
               sourceNode.setSourceContent(entryFilename, sceneJavaScript);
 
             }
+            
+            var defaultData = {};
+            
+            
+            var data = grunt.util._.merge(defaultData, metadata.data);
+            
+            var templateData = {};
+            
+            if (scenePartials && scenePartials['guilayer']) {
+              templateData.guilayer = true;
+            }
 
             scenes.push({
               name: metadata.name || sceneName,
@@ -169,7 +180,7 @@ module.exports = function(grunt) {
                   var content = '{';
 
                   grunt.util._.each(obj, function(value, key) {
-                    content += '"' + key + '": ' + value.toString();
+                    content += '"' + key + '": TemplateEngine.compile(' + value.toString() + ')';
 
                     if (Object.keys(obj)[key] !== Object.keys(obj).length - 1) {
                       content += ',';
@@ -181,7 +192,8 @@ module.exports = function(grunt) {
                   return content;
                 })(scenePartials)
               },
-              data: JSON.stringify(metadata.data) || '{}',
+              data: JSON.stringify(data),
+              templateData: JSON.stringify(templateData),
               localization: sceneLoc,
               content: sceneJavaScript
             });
