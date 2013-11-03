@@ -20,6 +20,7 @@ module.exports = function(grunt) {
       name: 'scenelist',
       entryFile: 'scene.js',
       markupFile: 'scene.html',
+      sourceRoot: '',
       localizationFile: 'localization.json',
       partials: 'partials',
       partialMatch: '*.html',
@@ -57,7 +58,7 @@ module.exports = function(grunt) {
         for (var k = 0, l = file.src.length; k < l; k++) {
           (function(fileSrc) {
             var longFilename = function(shortName) {
-              return [fileSrc, shortName].join('/')
+              return [fileSrc, shortName].join('/');
             };
 
             var entryFilename = longFilename(options.entryFile);
@@ -137,10 +138,12 @@ module.exports = function(grunt) {
 
               childNodeChunks.map(function(line) {
                 if (/\/\/@\s+sourceMappingURL=(.+)/.test(line)) {
-                  var sourceMapPath = filename.replace(/[^\/]*$/, RegExp.$1);
+                  var sceneSourceRoot = [options.sourceRoot, sceneName].join('/');
+                  
+                  var sourceMapPath = entryFilename.replace(/[^\/]*$/, RegExp.$1);
                   var sourceMap = grunt.file.readJSON(sourceMapPath);
                   sourceMap.file = entryFilename;
-                  var sourceRoot = path.resolve(path.dirname(filename), sourceMap.sourceRoot);
+                  var sourceRoot = path.resolve(path.dirname(entryFilename), sceneSourceRoot, sourceMap.sourceRoot);
                   sourceMap.sources = sourceMap.sources.map(function(source) {
                     return path.relative(process.cwd(), path.join(sourceRoot, source));
                   });
