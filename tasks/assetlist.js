@@ -42,7 +42,7 @@ module.exports = function(grunt) {
             } else {
               assetObject[dirname].totalSize = stat.size;
             }
-          })(fileObject.src[k])
+          })(fileObject.src[k]);
         }
 
         var value;
