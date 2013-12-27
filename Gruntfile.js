@@ -36,6 +36,7 @@ module.exports = function(grunt) {
       tests: ['tmp'],
     },
     
+    // Configuration to be run (and then tested).
     lyriaScene: {
       all: {
         options: {
@@ -47,26 +48,6 @@ module.exports = function(grunt) {
           filter: 'isDirectory'
         }]
       }
-    },
-
-    // Configuration to be run (and then tested).
-    lyria_assets: {
-      default_options: {
-        options: {
-        },
-        files: {
-          'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123'],
-        },
-      },
-      custom_options: {
-        options: {
-          separator: ': ',
-          punctuation: ' !!!',
-        },
-        files: {
-          'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123'],
-        },
-      },
     },
 
     // Unit tests.
