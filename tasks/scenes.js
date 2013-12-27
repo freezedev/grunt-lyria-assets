@@ -143,7 +143,7 @@ module.exports = function(grunt) {
               }
 
               childNodeChunks.map(function(line) {
-                if (/\/\/@\s+sourceMappingURL=(.+)/.test(line)) {
+                if (/\/\/@\s+sourceMappingURL=(.+)/.test(line) || /\/\/#\s+sourceMappingURL=(.+)/.test(line)) {
                   var sceneSourceRoot = [options.sourceRoot, sceneName].join('/');
                   
                   var sourceMapPath = entryFilename.replace(/[^\/]*$/, RegExp.$1);
@@ -155,7 +155,7 @@ module.exports = function(grunt) {
                   });
                   delete sourceMap.sourceRoot;
                   sourceMaps.push(sourceMap);
-                  return line.replace(/@\s+sourceMappingURL=[\w\.]+/, '');
+                  return line.replace(/@\s+sourceMappingURL=[\w\.]+/, '').replace(/#\s+sourceMappingURL=[\w\.]+/, '');
                 }
                 return line;
               }).forEach(function(line, o) {
@@ -216,7 +216,7 @@ module.exports = function(grunt) {
             namespace: options.namespace,
             scenes: scenes,
             hasSourceMap: hasSourceMap,
-            sourceMapDest: '//@ sourceMappingURL=' + path.basename(destFile) + '.map'
+            sourceMapDest: '//# sourceMappingURL=' + path.basename(destFile) + '.map'
           }
         });
 
