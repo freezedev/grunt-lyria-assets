@@ -17,6 +17,11 @@ module.exports = function(grunt) {
   grunt.registerMultiTask('lyriaScene', 'Concatenates all files into one', function() {
     var options = this.options({
       sourceMap: true,
+      base: null,
+      shortNames: false,
+      processName: function(name) {
+        return name;
+      },
       name: 'scenelist',
       entryFile: 'scene.js',
       markupFile: 'scene.html',
@@ -64,7 +69,8 @@ module.exports = function(grunt) {
             var entryFilename = longFilename(options.entryFile);
             var partialsDir = longFilename(options.partials);
 
-            var sceneName = fileSrc.split('/').pop();
+            var preprocessSceneName = (base) ? fileSrc.split(base)[1] : fileSrc;
+            var sceneName = options.processName((options.shortNames) ? preprocessSceneName.split('/').pop() : preprocessSceneName);
 
             var completeTemplate = (grunt.file.exists(longFilename(options.markupFile)) ? grunt.file.read(longFilename(options.markupFile)) : '') + defaultTemplate;
 
