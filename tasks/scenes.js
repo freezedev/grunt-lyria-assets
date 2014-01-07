@@ -38,6 +38,7 @@ module.exports = function(grunt) {
 
     var files = this.files;
     var hasSourceMap = options.sourceMap;
+    var base = options.base;
 
     var handlebarsTemplateOptions = {
       gameObjects: options.gameObjects,
