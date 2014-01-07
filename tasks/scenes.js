@@ -29,6 +29,7 @@ module.exports = function(grunt) {
       localizationFile: 'localization.json',
       partials: 'partials',
       partialMatch: '*.html',
+      allowEmpties: false,
       gameObjects: true,
       prefabs: true,
       guiLayer: true,
@@ -48,6 +49,7 @@ module.exports = function(grunt) {
 
     var defaultTemplate = hbsTemplates(handlebarsTemplateOptions);
 
+    // TODO: Update this to the official plugin guide
     for (var i = 0, j = files.length; i < j; i++) {
       (function(file) {
         var destFile = file.dest;
@@ -100,6 +102,12 @@ module.exports = function(grunt) {
                   scenePartials[shortName] = handlebars.precompile(grunt.file.read([partialsDir, partial].join('/')));
                 }
               })(scenePartialDir[p]);
+            }
+            
+            if (!options.allowEmpties) {
+              if (!grunt.file.exists(longFilename(options.markupFile)) && !grunt.file.exists(longFilename(options.localizationFile)) && !grunt.file.exists(entryFilename)) {
+                return;
+              }
             }
             
             var metadata = {};
