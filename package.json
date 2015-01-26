@@ -29,19 +29,19 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "grunt-contrib-jshint": "~0.6.0",
-    "grunt-contrib-clean": "~0.4.0",
-    "grunt-contrib-nodeunit": "~0.2.0",
-    "grunt-contrib-coffee": "~0.7.0",
-    "grunt": "~0.4.1"
+    "grunt": "~0.4.1",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-coffee": "^0.12.0",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-nodeunit": "^0.4.1"
   },
   "dependencies": {
-    "source-map": "~0.1.0",
-    "matchdep": "~0.1.2",
-    "mime": "~1.2.11",
+    "esprima": "^1.2.3",
     "handlebars": "~2.0.0",
-    "js-beautify": "~1.4.0",
-    "esprima": "~1.0.4"
+    "js-beautify": "^1.5.4",
+    "matchdep": "^0.3.0",
+    "mime": "~1.2.11",
+    "source-map": "~0.1.0"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"
