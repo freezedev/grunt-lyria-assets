@@ -35,11 +35,12 @@ module.exports = function (grunt) {
         }
 
         assetObject[dirname] = assetObject[dirname] || {};
-        stat = fs.statSync(file);
+
+        stat = fs.statSync(filepath);
         assetObject[dirname].files = assetObject[dirname].files || [];
         assetObject[dirname].files.push({
-          name: file,
-          type: mime.lookup(file),
+          name: filepath,
+          type: mime.lookup(filepath),
           size: stat.size
         });
 
@@ -63,7 +64,7 @@ module.exports = function (grunt) {
       }
 
       // Write the destination file.
-      grunt.file.write(dest, 'define("' + options.namespace + '/' + options.name + '",' + JSON.stringify(assetObject) + ');');
+      grunt.file.write(f.dest, 'define("' + options.namespace + '/' + options.name + '",' + JSON.stringify(assetObject) + ');');
 
       // Print a success message.
       grunt.log.writeln('File "' + f.dest + '" created.');
